@@ -90,17 +90,18 @@ def get_bounding_box_lengths(points):
 
 def get_random_rotation_matrix():
     """Generates a random rotation matrix"""
-    z = np.random.randn(3, 3)
-    q, r = np.linalg.qr(z)
-    sign = 2 * (np.diagonal(r, axis1=0, axis2=1) >= 0) - 1
-    rot = q
-    rot *= sign[..., None, :]
-    rot[0, :] *= np.linalg.det(rot)[..., None]
-    return rot
+    random_matrix = np.random.randn(3, 3)
+    q, r = np.linalg.qr(random_matrix)
+    # Ensure the diagonal of R has positive entries
+    q *= np.sign(np.diag(r))
+    # Ensure the determinant of the rotation matrix is +1 (flip first column if -1)
+    q[:, 0] *= np.sign(np.linalg.det(q))
+
+    return q
 
 
 def load_object(path: Path):
-    """Returns a tuple of two numpy arrays containing all the point data in an OFF object file."""
+    """Returns a numpy array containing all the point data in an OFF object file."""
     num_vertices, _, _ = get_num_vertices_faces_cells(path)
 
     points = np.loadtxt(
