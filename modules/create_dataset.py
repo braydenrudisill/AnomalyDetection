@@ -1,19 +1,32 @@
 import numpy as np
-import torch
 
 import random
 from pathlib import Path
+from tqdm import tqdm
 
-MODEL10_PATH = Path("../pivotdata/ModelNet10").resolve()
+np.random.seed(42)
+random.seed(42)
+
+MODEL10_PATH = Path('../../pivotdata/ModelNet10')
+SYNTHETIC_DATA_PATH = MODEL10_PATH / '../synthetic_data'
 DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
 
 OBJ_PER_SCENE = 10
-TRAIN_POINTS = 1000
+NUM_TRAIN_SCENES = 500
+NUM_TEST_SCENES = 25
+
+# Original paper uses 64_000
+NUM_POINTS_PER_CLOUD = 16_000
 
 
 def main():
-    train_s = generate_scene(TRAIN_POINTS, 'train')
-    print(s1[:3])
+    for i in tqdm(range(NUM_TRAIN_SCENES), desc='Generating Training Scenes'):
+        train_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'train')
+        save_to_file(SYNTHETIC_DATA_PATH / f'train/{i:03}.txt', train_scene)
+
+    for i in tqdm(range(NUM_TEST_SCENES), desc='Generating Testing Scenes'):
+        test_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'test')
+        save_to_file(SYNTHETIC_DATA_PATH / f'test/{i:02}.txt', test_scene)
 
 
 def generate_scene(n_points, dataset):
@@ -28,7 +41,7 @@ def generate_scene(n_points, dataset):
     The whole scene point cloud lies within (-3.5, 3.5).
     """
     objects = []
-    for _ in range(OBJ_PER_SCENE):
+    for _ in tqdm(range(OBJ_PER_SCENE), desc="Filling scene with objects", leave=False):
         path = random.choice(list((MODEL10_PATH / random.choice(DATASETS) / dataset).glob('*.off')))
         point_cloud = load_object(path)
         scaled_object = point_cloud / max(get_bounding_box_lengths(point_cloud))
@@ -37,44 +50,36 @@ def generate_scene(n_points, dataset):
         objects.append(transformed_object)
 
     all_points = [pt for cloud in objects for pt in cloud]
-    return fps(all_points, n_points)
+    return farthest_point_sampling(all_points, n_points)
 
 
-def fps(points, n_samples):
-    """Samples `n_samples` points from a given point cloud using Farthest Point Sampling."""
-    points = np.array(points)
-    points_left = np.arange(len(points))
-    sample_inds = np.zeros(n_samples, dtype='int')
-    dists = np.ones_like(points_left) * float('inf')
-    selected = 0
-    sample_inds[0] = points_left[selected]
-    points_left = np.delete(points_left, selected)
+def save_to_file(path, point_cloud):
+    """Saves a point cloud to a text file where each line is the space separated coordinates of a point."""
+    with open(path, 'w+') as f:
+        f.writelines([' '.join(map(str, point)) + '\n' for point in point_cloud])
 
-    for i in range(1, n_samples):
-        last_added = sample_inds[i - 1]
-        dist_to_last_added_point = ((points[last_added] - points[points_left]) ** 2).sum(-1)
-        dists[points_left] = np.minimum(dist_to_last_added_point, dists[points_left])
-        selected = np.argmax(dists[points_left])
-        sample_inds[i] = points_left[selected]
-        points_left = np.delete(points_left, selected)
 
-    return points[sample_inds]
-
-def fps2(points, n_samples):
+def farthest_point_sampling(points, n_samples):
     """Samples `n_samples` points from a given point cloud using Farthest Point Sampling."""
     points = np.array(points)
     n_points = len(points)
-    sample_inds = np.zeros(n_samples, dtype=int)
-    dists = np.full(n_points, np.inf)
-    sample_inds[0] = np.random.randint(n_points)
 
-    for i in range(1, n_samples):
-        last_added = sample_inds[i - 1]
+    if n_samples >= n_points:
+        return points
+
+    sample_indices = np.zeros(n_samples, dtype=int)
+    dists = np.full(n_points, np.inf)
+
+    # Initialize first point randomly
+    sample_indices[0] = np.random.randint(n_points)
+
+    for i in tqdm(range(1, n_samples), desc="Sampling points using FPS", leave=False):
+        last_added = sample_indices[i - 1]
         dist_to_last_added_point = np.sum((points[last_added] - points) ** 2, axis=1)
         dists = np.minimum(dists, dist_to_last_added_point)
-        sample_inds[i] = np.argmax(dists)
+        sample_indices[i] = np.argmax(dists)
 
-    return points[sample_inds]
+    return points[sample_indices]
 
 
 def get_bounding_box_lengths(points):
