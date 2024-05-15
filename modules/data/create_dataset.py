@@ -1,15 +1,13 @@
 import numpy as np
 
+from .modelnet10_data import load_object, MODEL10_PATH, DATASETS, SYNTHETIC_DATA_PATH
+
 import random
 from pathlib import Path
 from tqdm import tqdm
 
 np.random.seed(42)
 random.seed(42)
-
-MODEL10_PATH = Path('../../pivotdata/ModelNet10')
-SYNTHETIC_DATA_PATH = MODEL10_PATH / '../synthetic_data'
-DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
 
 OBJ_PER_SCENE = 10
 NUM_TRAIN_SCENES = 500
@@ -50,7 +48,7 @@ def generate_scene(n_points, dataset):
         objects.append(transformed_object)
 
     all_points = [pt for cloud in objects for pt in cloud]
-    return farthest_point_sampling(all_points, n_points)
+    return farthest_point_sampling_naive(all_points, n_points)
 
 
 def save_to_file(path, point_cloud):
@@ -59,7 +57,8 @@ def save_to_file(path, point_cloud):
         f.writelines([' '.join(map(str, point)) + '\n' for point in point_cloud])
 
 
-def farthest_point_sampling(points, n_samples):
+# TODO: Improve implementation by using GPU (or batching??)
+def farthest_point_sampling_naive(points, n_samples):
     """Samples `n_samples` points from a given point cloud using Farthest Point Sampling."""
     points = np.array(points)
     n_points = len(points)
@@ -98,34 +97,6 @@ def get_random_rotation_matrix():
     q[:, 0] *= np.sign(np.linalg.det(q))
 
     return q
-
-
-def load_object(path: Path):
-    """Returns a numpy array containing all the point data in an OFF object file."""
-    num_vertices, _, _ = get_num_vertices_faces_cells(path)
-
-    points = np.loadtxt(
-        load_and_skip_prefixes(path, prefixes={'#', 'OFF'}),
-        dtype=float,
-        skiprows=1,
-        max_rows=num_vertices
-    )
-
-    return points
-
-
-def get_num_vertices_faces_cells(path: Path) -> tuple:
-    """Returns a tuple describing the number of vertices, faces, and cells in an OFF object file."""
-    data_line = next(load_and_skip_prefixes(path, prefixes={'#', 'OFF'}))
-    return tuple(map(int, data_line.strip().split(' ')))
-
-
-def load_and_skip_prefixes(path: Path, prefixes: set):
-    """Loads a file as a generator skipping lines that start with given prefixes."""
-    with open(path) as f:
-        filtered = (line for line in f if not any(line.strip().startswith(prefix) for prefix in prefixes))
-        for row in filtered:
-            yield row
 
 
 if __name__ == '__main__':
