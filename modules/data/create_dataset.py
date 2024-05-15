@@ -40,6 +40,7 @@ def generate_scene(n_points, dataset):
     """
     objects = []
     for _ in tqdm(range(OBJ_PER_SCENE), desc="Filling scene with objects", leave=False):
+        print(MODEL10_PATH / random.choice(DATASETS) / dataset)
         path = random.choice(list((MODEL10_PATH / random.choice(DATASETS) / dataset).glob('*.off')))
         point_cloud = load_object(path)
         scaled_object = point_cloud / max(get_bounding_box_lengths(point_cloud))
