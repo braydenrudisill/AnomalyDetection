@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 
 
-MODEL10_PATH = Path('../../../pivotdata/ModelNet10').resolve()
+MODEL10_PATH = Path('../../pivotdata/ModelNet10').resolve()
 SYNTHETIC_DATA_PATH = MODEL10_PATH / '../synthetic_data'
 DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
 
@@ -25,7 +25,10 @@ def load_object(path: Path):
 def get_num_vertices_faces_cells(path: Path) -> tuple:
     """Returns a tuple describing the number of vertices, faces, and cells in an OFF object file."""
     data_line = next(load_and_skip_prefixes(path, prefixes={'#', 'OFF'}))
-    return tuple(map(int, data_line.strip().split(' ')))
+    try:
+        return tuple(map(int, data_line.strip().split(' ')))
+    finally:
+        print(path)
 
 
 def load_and_skip_prefixes(path: Path, prefixes: set):

@@ -1,10 +1,6 @@
 import torch.utils.data
-import numpy as np
 
-import os
 from pathlib import Path
-
-from .modelnet10_data import load_object
 
 
 class ModelNetDataset(torch.utils.data.Dataset):
@@ -13,10 +9,10 @@ class ModelNetDataset(torch.utils.data.Dataset):
     def __init__(self, root_dir):
         """
         Arguments:
-            root_dir (string): Directory with all the OFF files.
+            root_dir (string): Directory with all the txt files.
         """
         self.root_dir = Path(root_dir)
-        self.file_paths = list(self.root_dir.glob('*.off'))
+        self.file_paths = list(self.root_dir.glob('*.txt'))
 
     def __len__(self):
         return len(self.file_paths)
@@ -25,9 +21,11 @@ class ModelNetDataset(torch.utils.data.Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        scene_path = self.root_dir / f'{idx:03}.txt'
+        scene_path = self.file_paths[idx]
 
-        scene = load_object(scene_path)
+        with open(scene_path, 'r') as f:
+            scene = torch.tensor([list(map(float, line.split(' '))) for line in f])
+
         sample = {'scene': scene}
 
         return sample
