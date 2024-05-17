@@ -1,5 +1,4 @@
 import unittest
-from modules.data.create_dataset import generate_scene
 from models.teacher_network import TeacherNetwork
 import torch
 

@@ -1,9 +1,8 @@
 import numpy as np
 
-from .modelnet10_data import load_object, MODEL10_PATH, DATASETS, SYNTHETIC_DATA_PATH
+from modules.data.modelnet10_data import load_object, MODEL10_PATH, DATASETS, SYNTHETIC_DATA_PATH
 
 import random
-from pathlib import Path
 from tqdm import tqdm
 
 np.random.seed(42)
@@ -14,7 +13,7 @@ NUM_TRAIN_SCENES = 500
 NUM_TEST_SCENES = 25
 
 # Original paper uses 64_000
-NUM_POINTS_PER_CLOUD = 16_000
+NUM_POINTS_PER_CLOUD = 64_000
 
 
 def main():
@@ -40,7 +39,6 @@ def generate_scene(n_points, dataset):
     """
     objects = []
     for _ in tqdm(range(OBJ_PER_SCENE), desc="Filling scene with objects", leave=False):
-        print(MODEL10_PATH / random.choice(DATASETS) / dataset)
         path = random.choice(list((MODEL10_PATH / random.choice(DATASETS) / dataset).glob('*.off')))
         point_cloud = load_object(path)
         scaled_object = point_cloud / max(get_bounding_box_lengths(point_cloud))

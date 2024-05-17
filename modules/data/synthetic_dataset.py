@@ -26,6 +26,5 @@ class ModelNetDataset(torch.utils.data.Dataset):
         with open(scene_path, 'r') as f:
             scene = torch.tensor([list(map(float, line.split(' '))) for line in f])
 
-        sample = {'scene': scene}
-
-        return sample
+        # sample = {'scene': scene}
+        return scene

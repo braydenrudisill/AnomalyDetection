@@ -1,2 +1,6 @@
 .idea/
-*/__pycharm__/
+*/__pycache__/
+runs/
+modules/runs/
+
+*.pt
