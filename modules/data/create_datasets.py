@@ -1,6 +1,6 @@
 import numpy as np
 
-from modules.data import MVTEC_PATH, MVTEC_SYNTHETIC, load_tiff, MODEL10_PATH, M10_DATASETS, M10_SYNTHETIC_16k, load_object
+from modules.data import MVTEC_PATH, MVTEC_SYNTHETIC, load_tiff, MODEL10_PATH, M10_DATASETS, M10_SYNTHETIC_32K, load_object
 
 import random
 import torch
@@ -13,11 +13,11 @@ NUM_TRAIN_SCENES = 500
 NUM_TEST_SCENES = 25
 
 # Original paper uses 64_000
-NUM_POINTS_PER_CLOUD = 16_000
+NUM_POINTS_PER_CLOUD = 32_000
 
 
 def create_mvtec_dataset():
-    files = MVTEC_PATH / 'test' / 'crack' / 'xyz'
+    files = MVTEC_PATH / 'train' / 'good' / 'xyz'
     print(files)
     for i, file_path in tqdm(enumerate(files.glob('*.tiff')), desc="Generating point clouds"):
         cloud = load_tiff(file_path).to('cuda:0')
@@ -30,11 +30,11 @@ def create_mvtec_dataset():
 def create_model_10_dataset():
     for i in tqdm(range(NUM_TRAIN_SCENES), desc='Generating Training Scenes'):
         train_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'train')
-        save_to_file(M10_SYNTHETIC_16k / f'train/{i:03}.txt', train_scene)
+        save_to_file(train_scene, M10_SYNTHETIC_32K / f'train/{i:03}.txt', )
 
     for i in tqdm(range(NUM_TEST_SCENES), desc='Generating Testing Scenes'):
         test_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'test')
-        save_to_file(M10_SYNTHETIC_16k / f'test/{i:02}.txt', test_scene)
+        save_to_file(test_scene, M10_SYNTHETIC_32K / f'test/{i:02}.txt')
 
 
 def generate_scene(n_points, dataset):
@@ -121,7 +121,7 @@ def sample_farthest_points(
         num_to_sample = min(num_points, num_samples)
 
         # Iteratively select points for a maximum of k_n
-        for i in range(1, num_to_sample):
+        for i in tqdm(range(1, num_to_sample), desc='Sampling'):
             # Find the distance between the last selected point
             # and all the other points. If a point has already been selected
             # its distance will be 0.0, so it will not be selected again as the max.
@@ -142,6 +142,5 @@ def sample_farthest_points(
 
 
 if __name__ == '__main__':
-    # create_model_10_dataset()
-    # create_mvtec_dataset()
-    test_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'test')
+    create_model_10_dataset()
+    create_mvtec_dataset()

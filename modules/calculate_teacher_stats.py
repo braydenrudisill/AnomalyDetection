@@ -3,7 +3,7 @@ import torch
 from tqdm import tqdm
 from collections import deque
 
-from modules.data import M10_SYNTHETIC_16k
+from modules.data import M10_SYNTHETIC_16K
 from modules.models import TeacherNetwork, DecoderNetwork, KNNGraph
 
 
@@ -43,7 +43,7 @@ def main():
 
     r = RunningStats(10)
     for i in tqdm(range(500)):
-        with open(M10_SYNTHETIC_16k / f'train/{i:03}.txt', 'r') as f:
+        with open(M10_SYNTHETIC_16K / f'train/{i:03}.txt', 'r') as f:
             sample_point_cloud = torch.tensor([[float(c) for c in line.strip().split(' ')] for line in f], dtype=torch.float) / 0.015
 
         with torch.no_grad():
