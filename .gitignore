@@ -4,3 +4,4 @@ runs/
 modules/runs/
 
 *.pt
+*.txt
