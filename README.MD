@@ -51,13 +51,20 @@ python -m modules.create_heatmap
 
 ## Examples
 ### Crack anomalies
-![example](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/ba51e37f-714b-4a22-b1ca-c9109769d949)
-![example2](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/b6296479-6520-4a36-94ef-5b49d8fe72e9)
-![example3](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/1c2530bc-9291-4bd0-a027-d27411779fc1)
-![example4](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/63ae53fc-d734-4a50-b8d9-e37b51cae784)
+![example 1](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/ba51e37f-714b-4a22-b1ca-c9109769d949)
+![example 2](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/b6296479-6520-4a36-94ef-5b49d8fe72e9)
+![example 3](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/1c2530bc-9291-4bd0-a027-d27411779fc1)
+![example 4](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/63ae53fc-d734-4a50-b8d9-e37b51cae784)
 
 ### Hole defect on left
-![example5](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/124dc1ca-a35b-4e85-9e35-42797cf87b71)
+![example 5](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/124dc1ca-a35b-4e85-9e35-42797cf87b71)
 
 ### Anomaly-free
-![noanomaly](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/329f0432-910d-4a75-b9af-2daed311bc3c)
+![no anomaly](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/329f0432-910d-4a75-b9af-2daed311bc3c)
+
+
+### Teacher training loss
+![teacher_network training loss plot](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/9e0266a3-14db-446f-ae8c-7f6a7b9b0649)
+
+### Student network training loss
+![student_network training loss plot](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/db16397b-53b1-4ad6-8ee4-e6e23af11eeb)
