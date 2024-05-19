@@ -7,8 +7,7 @@ from tqdm import tqdm
 from pathlib import Path
 
 from modules.models import TeacherNetwork
-from modules.data import ModelNetDataset
-from modules.data.mvtec3dad_data import SYNTHETIC_DATA_PATH
+from modules.data import PointCloudDataset, MVTEC_SYNTHETIC
 
 
 TEACHER_FEATURE_STATS_PATH = '/baldig/chemistry/2023_rp/Chemformer/pivot/models/teacher_stats.txt'
@@ -32,22 +31,21 @@ def main():
 
     optimizer = torch.optim.Adam(student_model.parameters(), lr=1e-3, weight_decay=1e-6)
 
+    # Stats file format:
+    # mean1 std_dev1
+    # mean2 std_dev2
+    # ...
     with open(TEACHER_FEATURE_STATS_PATH, 'r') as f:
-        # mean1 std_dev1
-        # mean2 std_dev2
-        # ...
         means, std_devs = torch.tensor(list(zip(*[[float(num) for num in row.split(' ')] for row in f])), dtype=torch.float).to(device)
 
-    train_dataset = ModelNetDataset(root_dir=SYNTHETIC_DATA_PATH / 'train')
+    train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/0.0018)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-    s = 0.0018
-    scaling_factor = 1 / s
     for epoch in range(100):
         print(f'EPOCH: {epoch}')
         epoch_loss = 0
         for step, data in tqdm(enumerate(train_dataloader), desc='Training'):
-            point_cloud = data[0].to(device) * scaling_factor
+            point_cloud = data[0].to(device)
 
             with torch.no_grad():
                 descriptors = teacher_model(point_cloud)
@@ -101,3 +99,4 @@ class StudentLoss(torch.nn.Module):
 
 if __name__ == '__main__':
     main()
+    

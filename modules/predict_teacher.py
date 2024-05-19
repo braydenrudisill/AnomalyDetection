@@ -1,6 +1,6 @@
 import torch
 
-from modules.data.modelnet10_data import M10_SYNTHETIC_16k
+from modules.data import M10_SYNTHETIC_16k, PointCloudDataset
 from modules.pretrain_teacher import get_rf
 from modules.models import TeacherNetwork, DecoderNetwork, KNNGraph
 
@@ -18,6 +18,7 @@ def main():
     teacher.load_state_dict(torch.load('/modules/models/teacher.pt'))
     decoder.load_state_dict(torch.load('/modules/models/decoder.pt'))
 
+    # TODO: Convert to a point_cloud_dataset
     with open(M10_SYNTHETIC_16k / 'test/12.txt', 'r') as f:
         sample_point_cloud = torch.tensor([[float(c) for c in line.strip().split(' ')] for line in f], dtype=torch.float) / 0.015
 

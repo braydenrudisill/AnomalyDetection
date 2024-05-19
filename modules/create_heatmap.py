@@ -1,6 +1,6 @@
 import torch
 
-from modules.data.mvtec3dad_data import SYNTHETIC_DATA_PATH
+from modules.data import MVTEC_SYNTHETIC
 from modules.models import TeacherNetwork
 
 
@@ -26,7 +26,7 @@ def main():
     student.load_state_dict(torch.load('models/students/2024-05-18T11:51:24.702777/student.pt'))
 
     s = 0.0018
-    with open(SYNTHETIC_DATA_PATH / 'test/hole/0.txt', 'r') as f:
+    with open(MVTEC_SYNTHETIC / 'test/hole/0.txt', 'r') as f:
         sample_point_cloud = torch.tensor([[float(c) for c in line.strip().split(' ')] for line in f], dtype=torch.float, device=device) / s
 
     with torch.no_grad():

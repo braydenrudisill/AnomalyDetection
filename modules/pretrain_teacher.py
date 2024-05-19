@@ -6,11 +6,8 @@ from tqdm import tqdm
 from datetime import datetime
 from pathlib import Path
 
-from modules.models import TeacherNetwork
-from modules.models import KNNGraph
-from modules.models import DecoderNetwork
-from modules.data import ModelNetDataset
-from modules.data.modelnet10_data import SYNTHETIC_DATA_PATH_16K
+from modules.models import TeacherNetwork, KNNGraph, DecoderNetwork
+from modules.data import PointCloudDataset, M10_SYNTHETIC_16k
 
 
 NUM_FEATURE_SAMPLES = 16
@@ -29,10 +26,10 @@ def main():
     t_net = TeacherNetwork(d_model, k, num_blocks, device=device).to(device)
     decoder = DecoderNetwork(d_model, 128).to(device)
 
-    train_dataset = ModelNetDataset(root_dir=SYNTHETIC_DATA_PATH_16K / 'train')
+    train_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16k / 'train', scaling_factor=1/0.015)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-    test_dataset = ModelNetDataset(root_dir=SYNTHETIC_DATA_PATH_16K / 'test')
+    test_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16k / 'test', scaling_factor=1/0.015)
     test_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
     t, d = pretrain_teacher_network(
@@ -55,13 +52,12 @@ def pretrain_teacher_network(teacher_net, decoder_net, dataset, num_blocks, k, d
     criterion = ChamferDistanceLoss().to(device)
     knn_graph = KNNGraph().to(device)
     optimizer = torch.optim.Adam(list(teacher_net.parameters()) + list(decoder_net.parameters()), lr=5e-3, weight_decay=1e-6)
-    s = 0.015
-    scaling_factor = 1 / s
+
     for epoch in range(250):
         print(f'EPOCH: {epoch}')
         epoch_loss = 0
         for step, data in tqdm(enumerate(dataset), desc='Training'):
-            point_cloud = data[0].to(device) * scaling_factor
+            point_cloud = data[0].to(device)
             knn = knn_graph(point_cloud, k)
 
             descriptors = teacher_net(point_cloud, knn)
@@ -82,7 +78,6 @@ def pretrain_teacher_network(teacher_net, decoder_net, dataset, num_blocks, k, d
 
             optimizer.zero_grad()
             total_loss.backward()
-            # print(teacher_net.res_block.lfa2.mlp.mlp.weight.grad)
             optimizer.step()
 
         print(f'Epoch Loss: {epoch_loss / 500}')
