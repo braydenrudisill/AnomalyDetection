@@ -29,7 +29,7 @@ def main():
 
 class TeacherPretrainer(Trainer):
     def __init__(self, d_model, k, num_res_blocks, device, num_decoded_points, train_dataloader, test_dataloader):
-        super().__init__('teacher', device, train_dataloader, test_dataloader)
+        super().__init__('teacher', 250, device, train_dataloader, test_dataloader)
 
         self.k = k
         self.num_res_blocks = num_res_blocks

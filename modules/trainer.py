@@ -8,7 +8,9 @@ from tqdm import tqdm
 
 
 class Trainer(ABC):
-    def __init__(self, name, device, train_dataloader, test_dataloader):
+    """Handles common training logic such as model saving, logging, epoch iteration, etc."""
+    def __init__(self, name, num_epochs, device, train_dataloader, test_dataloader):
+        self.num_epochs = num_epochs
         self.device = device
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
@@ -20,7 +22,7 @@ class Trainer(ABC):
         self.optimizer = None
 
     def run(self):
-        for epoch in range(250):
+        for epoch in range(self.num_epochs):
             epoch_loss = 0
             for step, batch in tqdm(enumerate(self.train_dataloader), desc='Training'):
                 total_loss = self.predict_and_score(batch)
@@ -29,15 +31,18 @@ class Trainer(ABC):
                 total_loss.backward()
                 self.optimizer.step()
 
-            print(f'Epoch Loss: {epoch_loss / 500}')
-            self.writer.add_scalar('Epoch Loss', epoch_loss / 500, epoch)
+            epoch_loss /= len(self.train_dataloader)
+
+            print(f'Epoch Loss: {epoch_loss}')
+            self.writer.add_scalar('Epoch Loss', epoch_loss, epoch)
 
             if epoch % 25 == 0 and epoch is not 0:
                 self.save_models(tag=epoch)
                 with torch.no_grad():
                     val_loss = sum(self.predict_and_score(batch) for batch in self.test_dataloader)
-                    print(f'Validation Loss: {val_loss / 25}')
-                    self.writer.add_scalar('Validation Loss', val_loss / 25, epoch)
+                    val_loss /= len(self.test_dataloader)
+                    print(f'Validation Loss: {val_loss}')
+                    self.writer.add_scalar('Validation Loss', val_loss, epoch)
 
         self.save_models(tag='last')
 

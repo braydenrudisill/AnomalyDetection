@@ -27,7 +27,7 @@ def main():
 
 class StudentTrainer(Trainer):
     def __init__(self, d_model, k, num_res_blocks, device, teacher_path, teacher_stats_path, train_dataloader, test_dataloader):
-        super().__init__('student', device, train_dataloader, test_dataloader)
+        super().__init__('student', 25, device, train_dataloader, test_dataloader)
 
         self.teacher = TeacherNetwork(d_model, k, num_res_blocks, device=device).to(device)
         self.student = TeacherNetwork(d_model, k, num_res_blocks, device=device).to(device)
