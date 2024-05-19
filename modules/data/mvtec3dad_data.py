@@ -4,8 +4,8 @@ from pathlib import Path
 import cv2
 
 
-MVTEC_SYNTHETIC = Path('pivotdata/synthetic_bagel')
-MVTEC_PATH = Path('pivotdata/bagel')
+MVTEC_SYNTHETIC = Path('../pivotdata/synthetic_bagel')
+MVTEC_PATH = Path('../pivotdata/bagel')
 MVTEC_DATASETS = ['bagel', ...]
 
 

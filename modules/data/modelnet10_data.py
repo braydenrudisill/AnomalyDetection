@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 
 
-MODEL10_PATH = Path('pivotdata/ModelNet10')
+MODEL10_PATH = Path('../pivotdata/ModelNet10')
 M10_SYNTHETIC = MODEL10_PATH / '../64k_synthetic'
 M10_SYNTHETIC_16k = MODEL10_PATH / '../synthetic_data'
 M10_DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']

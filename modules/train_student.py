@@ -1,17 +1,10 @@
 import torch
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
-
-from datetime import datetime
-from tqdm import tqdm
-from pathlib import Path
 
 from modules.models import TeacherNetwork
 from modules.data import PointCloudDataset, MVTEC_SYNTHETIC
-
-
-TEACHER_FEATURE_STATS_PATH = 'models/teacher_stats.txt'
-TEACHER_MODEL_PATH = 'models/teacher.pt'
+from modules.trainer import Trainer
+from modules.loss import EuclidianFeatureDistance
 
 
 def main():
@@ -19,82 +12,54 @@ def main():
     k = 8
     num_blocks = 4
     device = torch.device('cuda:0')
-    criterion = StudentLoss().to(device)
-    teacher_model = TeacherNetwork(d, k, num_blocks, device).to(device)
-    student_model = TeacherNetwork(d, k, num_blocks, device).to(device)
-    teacher_model.load_state_dict(torch.load(TEACHER_MODEL_PATH))
+    teacher_path = 'models/teacher.pt'
+    teacher_stats_path = 'models/teacher_stats.txt'
 
-    writer = SummaryWriter()
-    date = datetime.now().isoformat()
-    model_path = Path(f"models/students/{date}")
-    model_path.mkdir(parents=True, exist_ok=True)
-
-    optimizer = torch.optim.Adam(student_model.parameters(), lr=1e-3, weight_decay=1e-6)
-
-    # Stats file format:
-    # mean1 std_dev1
-    # mean2 std_dev2
-    # ...
-    with open(TEACHER_FEATURE_STATS_PATH, 'r') as f:
-        means, std_devs = torch.tensor(list(zip(*[[float(num) for num in row.split(' ')] for row in f])), dtype=torch.float).to(device)
-
-    train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/0.0018)
+    train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'train', scaling_factor=1/0.0018)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-    for epoch in range(100):
-        print(f'EPOCH: {epoch}')
-        epoch_loss = 0
-        for step, data in tqdm(enumerate(train_dataloader), desc='Training'):
-            point_cloud = data[0].to(device)
+    test_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'test', scaling_factor=1/0.0018)
+    test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-            with torch.no_grad():
-                descriptors = teacher_model(point_cloud)
-
-            predicted_descriptors = student_model(point_cloud)
-
-            loss = criterion(predicted_descriptors, descriptors, means, std_devs)
-            epoch_loss += loss
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        print(f'Epoch Loss: {epoch_loss / len(train_dataloader)}')
-        if writer is not None:
-            writer.add_scalar('Epoch Loss/Total', epoch_loss / len(train_dataloader), epoch)
-
-        if (epoch + 1) % 25 == 0:
-            torch.save(student_model.state_dict(), f'{model_path}/student.pt')
+    trainer = StudentTrainer(d, k, num_blocks, device, teacher_path, teacher_stats_path, train_dataloader, test_dataloader)
+    trainer.run()
 
 
-def sample_loss():
-    criterion = StudentLoss()
-    f1 = torch.tensor([[0, 1, 2, 3], [4, 5, 6, 7]])
-    f2 = torch.tensor([[0, 1, 2, 10], [4, 5, 9, 22]])
-    means = torch.zeros(4)
-    std_devs = torch.ones(4)
-    std_devs[3] = 2
-    print(criterion(f1, f2, means, std_devs))
+class StudentTrainer(Trainer):
+    def __init__(self, d_model, k, num_res_blocks, device, teacher_path, teacher_stats_path, train_dataloader, test_dataloader):
+        super().__init__('student', device, train_dataloader, test_dataloader)
 
+        self.teacher = TeacherNetwork(d_model, k, num_res_blocks, device=device).to(device)
+        self.student = TeacherNetwork(d_model, k, num_res_blocks, device=device).to(device)
+        self.criterion = EuclidianFeatureDistance().to(device)
 
-class StudentLoss(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
+        self.teacher.load_state_dict(torch.load(teacher_path))
 
-    def forward(self, student_features, teacher_features, means, std_devs):
-        """Takes the average feature-wise L2 difference between the features from the two point clouds.
+        self.optimizer = torch.optim.Adam(
+            self.student.parameters(),
+            lr=1e-3,
+            weight_decay=1e-5)
 
-        Student_features: (n, d)
-        teacher_features: (n, d)
-        means: (d,)
-        std_devs: (d,)
-        """
+        # Stats file format:
+        # mean1 std_dev1
+        # mean2 std_dev2
+        # ...
+        with open(teacher_stats_path, 'r') as f:
+            self.means, self.std_devs = torch.tensor(list(zip(*[[float(num) for num in row.split(' ')] for row in f])),
+                                           dtype=torch.float).to(self.device)
 
-        n_points = len(teacher_features)
+    def predict_and_score(self, batch: torch.Tensor) -> torch.Tensor:
+        point_cloud = batch[0].to(self.device)
 
-        total_distance = torch.sum((student_features - (teacher_features - means) / std_devs).pow(2).sum(dim=1).sqrt())
+        with torch.no_grad():
+            descriptors = self.teacher(point_cloud)
+        predicted_descriptors = self.student(point_cloud)
 
-        return total_distance / n_points
+        loss = self.criterion(predicted_descriptors, descriptors, self.means, self.std_devs)
+        return loss
+
+    def save_models(self, tag) -> None:
+        torch.save(self.student.state_dict(), f'{self.model_path}/student.pt')
 
 
 if __name__ == '__main__':
