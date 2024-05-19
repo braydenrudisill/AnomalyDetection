@@ -3,10 +3,10 @@ import numpy as np
 from pathlib import Path
 
 
-MODEL10_PATH = Path('/baldig/chemistry/2023_rp/Chemformer/pivotdata/ModelNet10')
-SYNTHETIC_DATA_PATH = MODEL10_PATH / '../64k_synthetic'
-SYNTHETIC_DATA_PATH_16K = MODEL10_PATH / '../synthetic_data'
-DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
+MODEL10_PATH = Path('pivotdata/ModelNet10')
+M10_SYNTHETIC = MODEL10_PATH / '../64k_synthetic'
+M10_SYNTHETIC_16k = MODEL10_PATH / '../synthetic_data'
+M10_DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
 
 
 def load_object(path: Path):

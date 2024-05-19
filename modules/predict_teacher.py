@@ -1,9 +1,8 @@
 import torch
-from modules.data.modelnet10_data import SYNTHETIC_DATA_PATH_16K
+
+from modules.data.modelnet10_data import M10_SYNTHETIC_16k
 from modules.pretrain_teacher import get_rf
-from modules.models import TeacherNetwork
-from modules.models import DecoderNetwork
-from modules.models import KNNGraph
+from modules.models import TeacherNetwork, DecoderNetwork, KNNGraph
 
 
 def main():
@@ -19,7 +18,7 @@ def main():
     teacher.load_state_dict(torch.load('/modules/models/teacher.pt'))
     decoder.load_state_dict(torch.load('/modules/models/decoder.pt'))
 
-    with open(SYNTHETIC_DATA_PATH_16K / 'test/12.txt', 'r') as f:
+    with open(M10_SYNTHETIC_16k / 'test/12.txt', 'r') as f:
         sample_point_cloud = torch.tensor([[float(c) for c in line.strip().split(' ')] for line in f], dtype=torch.float) / 0.015
 
     knn = knn_graph(sample_point_cloud, 8)

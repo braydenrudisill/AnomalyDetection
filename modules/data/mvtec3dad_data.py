@@ -4,9 +4,9 @@ from pathlib import Path
 import cv2
 
 
-SYNTHETIC_DATA_PATH = Path('/baldig/chemistry/2023_rp/Chemformer/pivotdata/synthetic_bagel')
-MVTEC_PATH = Path('/baldig/chemistry/2023_rp/Chemformer/pivotdata/bagel')
-DATASETS = ['bagel', ...]
+MVTEC_SYNTHETIC = Path('pivotdata/synthetic_bagel')
+MVTEC_PATH = Path('pivotdata/bagel')
+MVTEC_DATASETS = ['bagel', ...]
 
 
 def main():

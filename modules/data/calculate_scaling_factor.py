@@ -1,7 +1,6 @@
 from torch.utils.data import DataLoader
 
-from modules.data.mvtec3dad_data import SYNTHETIC_DATA_PATH
-from modules.data import ModelNetDataset
+from modules.data import MVTEC_SYNTHETIC, ModelNetDataset
 from modules.models import KNNGraph
 from tqdm import tqdm
 
@@ -10,7 +9,7 @@ import torch
 
 def main():
     k = 8
-    train_ds = ModelNetDataset(SYNTHETIC_DATA_PATH / 'train')
+    train_ds = ModelNetDataset(MVTEC_SYNTHETIC / 'train')
     knn_graph = KNNGraph()
 
     train_dataloader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=0)
