@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 
-from modules.data import MVTEC_SYNTHETIC, PointCloudDataset
+from modules.data import MVTEC_SYNTHETIC, PointCloudDataset, M10_SYNTHETIC
 from modules.models import KNNGraph
 from tqdm import tqdm
 
@@ -8,8 +8,8 @@ import torch
 
 
 def main():
-    k = 8
-    train_ds = PointCloudDataset(MVTEC_SYNTHETIC / 'train')
+    k = 32
+    train_ds = PointCloudDataset(M10_SYNTHETIC / 'train', 1)
     knn_graph = KNNGraph()
 
     train_dataloader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=0)

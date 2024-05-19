@@ -30,11 +30,11 @@ def create_mvtec_dataset():
 def create_model_10_dataset():
     for i in tqdm(range(NUM_TRAIN_SCENES), desc='Generating Training Scenes'):
         train_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'train')
-        save_to_file(train_scene, M10_SYNTHETIC_32K / f'train/{i:03}.txt', )
+        save_to_file(train_scene[0], M10_SYNTHETIC_32K / f'train/{i:03}.txt', )
 
     for i in tqdm(range(NUM_TEST_SCENES), desc='Generating Testing Scenes'):
         test_scene = generate_scene(NUM_POINTS_PER_CLOUD, 'test')
-        save_to_file(test_scene, M10_SYNTHETIC_32K / f'test/{i:02}.txt')
+        save_to_file(test_scene[0], M10_SYNTHETIC_32K / f'test/{i:02}.txt')
 
 
 def generate_scene(n_points, dataset):

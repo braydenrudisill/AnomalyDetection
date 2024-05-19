@@ -48,3 +48,5 @@ python -m modules.train_student
 ```bash
 python -m modules.create_heatmap
 ```
+
+![example](images/crack.png)

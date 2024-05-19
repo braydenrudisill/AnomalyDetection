@@ -39,7 +39,7 @@ def main():
 
     knn_graph = KNNGraph()
 
-    teacher.load_state_dict(torch.load('/modules/models/teacher.pt'))
+    teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_125.pt'))
 
     r = RunningStats(10)
     for i in tqdm(range(500)):
@@ -56,7 +56,7 @@ def main():
             print(i, "sdev", r.sdev)
 
     print('Writing to file.')
-    with open('../models/teacher_stats.txt', 'w+') as f:
+    with open('../models/teachers/2024-05-19T07:40:20.796113/teacher_stats.txt', 'w+') as f:
         f.writelines(f'{mean} {std_dev}\n' for mean, std_dev in zip(r.mean, r.sdev))
 
     print('Done writing.')

@@ -15,8 +15,8 @@ def main():
     decoder = DecoderNetwork(d_model, 128).to(device)
     knn_graph = KNNGraph()
 
-    teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_75.pt'))
-    decoder.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/decoder_75.pt'))
+    teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_125.pt'))
+    decoder.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/decoder_125.pt'))
 
     # TODO: Convert to a point_cloud_dataset
     with open(M10_SYNTHETIC_16K / 'test/21.txt', 'r') as f:

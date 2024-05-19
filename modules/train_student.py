@@ -12,8 +12,8 @@ def main():
     k = 8
     num_blocks = 4
     device = torch.device('cuda:0')
-    teacher_path = 'models/teacher.pt'
-    teacher_stats_path = 'models/teacher_stats.txt'
+    teacher_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_125.pt'
+    teacher_stats_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_stats.txt'
 
     train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'train', scaling_factor=1/0.0018)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
@@ -27,7 +27,7 @@ def main():
 
 class StudentTrainer(Trainer):
     def __init__(self, d_model, k, num_res_blocks, device, teacher_path, teacher_stats_path, train_dataloader, test_dataloader):
-        super().__init__('student', 25, device, train_dataloader, test_dataloader)
+        super().__init__('student', 100, device, train_dataloader, test_dataloader)
 
         self.teacher = TeacherNetwork(d_model, k, num_res_blocks, device=device).to(device)
         self.student = TeacherNetwork(d_model, k, num_res_blocks, device=device).to(device)

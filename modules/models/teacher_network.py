@@ -77,6 +77,8 @@ class SharedMLP(nn.Module):
         self.relu = nn.LeakyReLU(0.2)
 
     def forward(self, inputs):
+        print(inputs[0][0])
+        print(inputs.shape, self.d_in, self.d_out)
         x = self.mlp(inputs)
         x = self.relu(x)
         return x
