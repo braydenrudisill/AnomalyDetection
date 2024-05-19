@@ -13,7 +13,7 @@ instead of the 64,000 as in the original paper to save time.
 
 
 ```bash
-python -m modules.
+python -m modules.data.create_datasets
 ```
 
 ## Teacher and Decoder Pretraining
@@ -25,3 +25,26 @@ step, 16 random feature vectors are sampled from the teacher's
 output and fed to the decoder. The total chamfer distance
 between the decoder's output clouds and the receptive field
 clouds is used as the loss for both models.
+
+```bash
+python -m modules.pretrain_teacher
+```
+
+## Student Training
+We train the student model using the same architecture as the 
+teacher. The loss is calculated via the average L2 distance
+between the student's and teacher's feature vectors. Since
+the student is only being trained on anomaly-free data, the
+idea is that it will only learn to predict features that are
+anomaly free, and the error from the teacher can be measured
+as a form of heatmap for defects.
+
+```bash
+python -m modules.train_student
+```
+
+## Inference
+
+```bash
+python -m modules.create_heatmap
+```

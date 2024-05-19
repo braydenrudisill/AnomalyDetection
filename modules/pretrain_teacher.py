@@ -18,7 +18,7 @@ def main():
     k = 8
     num_blocks = 4
     device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
-    model_path = Path(f"/baldig/chemistry/2023_rp/Chemformer/pivot/models/teachers/{datetime.now().isoformat()}")
+    model_path = Path(f"/models/teachers/{datetime.now().isoformat()}")
     model_path.mkdir(parents=True, exist_ok=True)
 
     writer = SummaryWriter()

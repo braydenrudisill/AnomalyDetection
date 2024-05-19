@@ -4,7 +4,7 @@ from modules.data import MVTEC_SYNTHETIC
 from modules.models import TeacherNetwork
 
 
-TEACHER_FEATURE_STATS_PATH = '/baldig/chemistry/2023_rp/Chemformer/pivot/models/teacher_stats.txt'
+TEACHER_FEATURE_STATS_PATH = 'models/teacher_stats.txt'
 
 
 def main():

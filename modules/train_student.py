@@ -10,8 +10,8 @@ from modules.models import TeacherNetwork
 from modules.data import PointCloudDataset, MVTEC_SYNTHETIC
 
 
-TEACHER_FEATURE_STATS_PATH = '/baldig/chemistry/2023_rp/Chemformer/pivot/models/teacher_stats.txt'
-TEACHER_MODEL_PATH = '/baldig/chemistry/2023_rp/Chemformer/pivot/models/teacher.pt'
+TEACHER_FEATURE_STATS_PATH = 'models/teacher_stats.txt'
+TEACHER_MODEL_PATH = 'models/teacher.pt'
 
 
 def main():
@@ -26,7 +26,7 @@ def main():
 
     writer = SummaryWriter()
     date = datetime.now().isoformat()
-    model_path = Path(f"/baldig/chemistry/2023_rp/Chemformer/pivot/models/students/{date}")
+    model_path = Path(f"models/students/{date}")
     model_path.mkdir(parents=True, exist_ok=True)
 
     optimizer = torch.optim.Adam(student_model.parameters(), lr=1e-3, weight_decay=1e-6)
@@ -99,4 +99,3 @@ class StudentLoss(torch.nn.Module):
 
 if __name__ == '__main__':
     main()
-    
