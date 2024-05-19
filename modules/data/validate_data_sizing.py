@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader
 
 from modelnet10_data import SYNTHETIC_DATA_PATH
 from synthetic_dataset import ModelNetDataset
-from models.teacher_network import knn_graph
+from modules.models import knn_graph
 from tqdm import tqdm
 import random
 
@@ -11,8 +11,10 @@ import torch
 
 import itertools
 
+
 def get_num_points(path):
     return len(load_object(path))
+
 
 def main():
     # print(min((MODEL10_PATH / random.choice(DATASETS) / 'train').glob('*.off'), key=get_num_points))

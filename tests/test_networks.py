@@ -1,5 +1,5 @@
 import unittest
-from models.teacher_network import TeacherNetwork
+from modules.models import TeacherNetwork
 import torch
 
 cuda0 = torch.device('cuda:0')

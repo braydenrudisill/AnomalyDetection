@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from models.knn_graph import KNNGraph
+from modules.models import KNNGraph
 
 
 class TeacherNetwork(nn.Module):
@@ -58,7 +58,6 @@ class LocalFeatureAggregation(nn.Module):
         super().__init__()
         self.k = k
         self.mlp = SharedMLP(4, d_in)
-        # self.pool = nn.AvgPool3d(kernel_size=k)
 
     def forward(self, inputs, geometric_features, knn):
         # Geometric features: [num_pts, k, 4]
@@ -72,6 +71,8 @@ class LocalFeatureAggregation(nn.Module):
 class SharedMLP(nn.Module):
     def __init__(self, d_in, d_out):
         super().__init__()
+        self.d_in = d_in
+        self.d_out = d_out
         self.mlp = nn.Linear(d_in, d_out)
         self.relu = nn.LeakyReLU(0.2)
 
