@@ -3,7 +3,7 @@ import torch
 from tqdm import tqdm
 from collections import deque
 
-from modules.data import M10_SYNTHETIC_16K
+from modules.data import M10_SYNTHETIC_16K, MVTEC_SYNTHETIC, PointCloudDataset
 from modules.models import TeacherNetwork, DecoderNetwork, KNNGraph
 
 
@@ -33,19 +33,13 @@ def main():
     device = torch.device('cuda:3' if torch.cuda.is_available() else 'cpu')
 
     teacher = TeacherNetwork(d_model, k, num_blocks, device=device).to(device)
-    decoder = DecoderNetwork(d_model, 128).to(device)
-
     teacher.eval()
 
-    knn_graph = KNNGraph()
-
-    teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_125.pt'))
+    teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'))
 
     r = RunningStats(10)
-    for i in tqdm(range(500)):
-        with open(M10_SYNTHETIC_16K / f'train/{i:03}.txt', 'r') as f:
-            sample_point_cloud = torch.tensor([[float(c) for c in line.strip().split(' ')] for line in f], dtype=torch.float) / 0.015
-
+    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/0.0018)
+    for sample_point_cloud in dataset:
         with torch.no_grad():
             output = teacher(sample_point_cloud.to(device))
 
@@ -56,7 +50,7 @@ def main():
             print(i, "sdev", r.sdev)
 
     print('Writing to file.')
-    with open('../models/teachers/2024-05-19T07:40:20.796113/teacher_stats.txt', 'w+') as f:
+    with open('models/teachers/2024-05-19T07:40:20.796113/teacher_stats_225.txt', 'w+') as f:
         f.writelines(f'{mean} {std_dev}\n' for mean, std_dev in zip(r.mean, r.sdev))
 
     print('Done writing.')

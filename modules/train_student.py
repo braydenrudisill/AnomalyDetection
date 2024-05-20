@@ -12,8 +12,8 @@ def main():
     k = 8
     num_blocks = 4
     device = torch.device('cuda:0')
-    teacher_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_125.pt'
-    teacher_stats_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_stats.txt'
+    teacher_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'
+    teacher_stats_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_stats_225.txt'
 
     train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'train', scaling_factor=1/0.0018)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
@@ -40,13 +40,8 @@ class StudentTrainer(Trainer):
             lr=1e-3,
             weight_decay=1e-5)
 
-        # Stats file format:
-        # mean1 std_dev1
-        # mean2 std_dev2
-        # ...
         with open(teacher_stats_path, 'r') as f:
-            self.means, self.std_devs = torch.tensor(list(zip(*[[float(num) for num in row.split(' ')] for row in f])),
-                                           dtype=torch.float).to(self.device)
+            self.means, self.std_devs = torch.tensor([list(map(float, line.split(' '))) for line in f]).T.to(device)
 
     def predict_and_score(self, batch: torch.Tensor) -> torch.Tensor:
         point_cloud = batch[0].to(self.device)

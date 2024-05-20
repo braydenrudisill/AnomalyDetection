@@ -20,10 +20,10 @@ def main():
     num_decoded_points = 1024
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    train_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC / 'train', scaling_factor=1)
+    train_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K/'train', scaling_factor=1/s16)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-    test_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC / 'test', scaling_factor=1 /s64)
+    test_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K/'test', scaling_factor=1/s16)
     test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=0)
 
     trainer = TeacherPretrainer(d_model, k, num_res_blocks, device, num_decoded_points, train_dataloader, test_dataloader)

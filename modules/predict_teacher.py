@@ -18,9 +18,8 @@ def main():
     teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_125.pt'))
     decoder.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/decoder_125.pt'))
 
-    # TODO: Convert to a point_cloud_dataset
-    with open(M10_SYNTHETIC_16K / 'test/21.txt', 'r') as f:
-        sample_point_cloud = torch.tensor([[float(c) for c in line.strip().split(' ')] for line in f], dtype=torch.float) / 0.015
+    dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K / 'test', scaling_factor=1/0.015)
+    sample_point_cloud = dataset[0]
 
     knn = knn_graph(sample_point_cloud, 8)
     features = teacher(sample_point_cloud.to(device))

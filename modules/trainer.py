@@ -25,7 +25,7 @@ class Trainer(ABC):
         for epoch in range(self.num_epochs):
             print(f'EPOCH: {epoch}')
             epoch_loss = 0
-            for step, batch in tqdm(enumerate(self.train_dataloader), desc='Training'):
+            for batch in tqdm(self.train_dataloader, desc='Training'):
                 total_loss = self.predict_and_score(batch)
                 epoch_loss += total_loss.detach()
                 self.optimizer.zero_grad()

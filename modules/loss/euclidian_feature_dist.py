@@ -13,9 +13,6 @@ class EuclidianFeatureDistance(torch.nn.Module):
         means: (d,)
         std_devs: (d,)
         """
-
-        n_points = len(teacher_features)
-
         total_distance = torch.sum((student_features - (teacher_features - means) / std_devs).pow(2).sum(dim=1).sqrt())
 
-        return total_distance / n_points
+        return total_distance / len(teacher_features)

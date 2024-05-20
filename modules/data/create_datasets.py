@@ -77,28 +77,19 @@ def get_random_rotation_matrix():
     """Generates a random rotation matrix"""
     random_matrix = np.random.randn(3, 3)
     q, r = np.linalg.qr(random_matrix)
-    # Ensure the diagonal of R has positive entries
-    q *= np.sign(np.diag(r))
-    # Ensure the determinant of the rotation matrix is +1 (flip first column if -1)
-    q[:, 0] *= np.sign(np.linalg.det(q))
+    q *= np.random.choice([-1,1], 3)
 
     return q
 
 
-def sample_farthest_points(
-    points: torch.Tensor,
-    num_samples: int,
-    random_start_point: bool = False,
-) -> torch.Tensor:
+def sample_farthest_points(points: torch.Tensor, num_samples: int, random_start_point: bool = False) -> torch.Tensor:
     """Returns the indices of the selected_points."""
     num_batches, num_points, dimensions = points.shape
     device = points.device
 
-    # List of selected indices from each batch element
     all_sampled_indices = []
 
     for batch in range(num_batches):
-        # Initialize an array for the sampled indices, shape: (num_samples,)
         sample_idx_batch = torch.full(
             (num_samples,),
             fill_value=-1,
@@ -120,25 +111,17 @@ def sample_farthest_points(
         # If the cloud has fewer points than sample size then get all points.
         num_to_sample = min(num_points, num_samples)
 
-        # Iteratively select points for a maximum of k_n
         for i in tqdm(range(1, num_to_sample), desc='Sampling'):
-            # Find the distance between the last selected point
-            # and all the other points. If a point has already been selected
-            # its distance will be 0.0, so it will not be selected again as the max.
             dist = points[batch, selected_idx, :] - points[batch, :num_points, :]
-            dist_to_last_selected = (dist**2).sum(-1)
 
-            closest_dists = torch.min(dist_to_last_selected, closest_dists)
+            closest_dists = torch.min(dist.pow(2).sum(-1), closest_dists)
             selected_idx = torch.argmax(closest_dists)
 
             sample_idx_batch[i] = selected_idx
 
-        # Add the list of points for this batch to the final list
         all_sampled_indices.append(sample_idx_batch)
 
-    all_sampled_indices = torch.stack(all_sampled_indices, dim=0)
-
-    return all_sampled_indices
+    return torch.stack(all_sampled_indices, dim=0)
 
 
 if __name__ == '__main__':
