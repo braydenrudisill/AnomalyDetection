@@ -56,8 +56,8 @@ python -m modules.create_heatmap
 ![example 3](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/1c2530bc-9291-4bd0-a027-d27411779fc1)
 ![example 4](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/63ae53fc-d734-4a50-b8d9-e37b51cae784)
 
-### Hole defect on left
-![example 5](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/124dc1ca-a35b-4e85-9e35-42797cf87b71)
+### Hole defect
+![example 5](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/8a150eed-188c-4a1d-b8c8-b8e8207501a7)
 
 ### Anomaly-free
 ![no anomaly](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/329f0432-910d-4a75-b9af-2daed311bc3c)
