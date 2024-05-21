@@ -67,4 +67,4 @@ python -m modules.create_heatmap
 ![teacher_network training loss plot](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/9e0266a3-14db-446f-ae8c-7f6a7b9b0649)
 
 ### Student network training loss
-![student_network training loss plot](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/afdd304b-4ffb-41c0-8150-5ecc2f8ad709)
+![student_network training loss plot](https://github.com/braydenrudisill/AnomalyDetection/assets/55212800/1db83553-093b-46b9-acc8-311de32ceb0a)
