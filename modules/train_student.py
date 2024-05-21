@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from modules.models import TeacherNetwork
-from modules.data import PointCloudDataset, MVTEC_SYNTHETIC
+from modules.data import PointCloudDataset, MVTEC_SYNTHETIC, MVTEC_SCALING
 from modules.trainer import Trainer
 from modules.loss import EuclidianFeatureDistance
 
@@ -15,10 +15,10 @@ def main():
     teacher_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'
     teacher_stats_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_stats_225.txt'
 
-    train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'train', scaling_factor=1/0.0018)
+    train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'train', scaling_factor=MVTEC_SCALING)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-    test_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'test', scaling_factor=1/0.0018)
+    test_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'test', scaling_factor=MVTEC_SCALING)
     test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=0)
 
     trainer = StudentTrainer(d, k, num_blocks, device, teacher_path, teacher_stats_path, train_dataloader, test_dataloader)

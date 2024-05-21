@@ -2,11 +2,12 @@ import torch
 
 from tqdm import tqdm
 
-from modules.data import M10_SYNTHETIC_16K, MVTEC_SYNTHETIC, PointCloudDataset
+from modules.data import M10_SYNTHETIC_16K, MVTEC_SYNTHETIC, PointCloudDataset, MVTEC_SCALING
 from modules.models import TeacherNetwork, DecoderNetwork, KNNGraph
 
 
 class RunningStats(torch.nn.Module):
+    """Calculates the running mean and standard deviation for given samples."""
     def __init__(self, d_model, device):
         super().__init__()
         self.n = 0
@@ -20,7 +21,7 @@ class RunningStats(torch.nn.Module):
 
     @property
     def standard_deviation(self):
-        return torch.sqrt(((self.n * self.sum_squared) - (self.sum.pow(2))) / (self.n * (self.n - 1)))
+        return torch.sqrt(((self.n * self.sum_squared) - self.sum.pow(2)) / (self.n * (self.n - 1)))
 
     @property
     def mean(self):
@@ -40,7 +41,7 @@ def main():
     teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'))
 
     stats = RunningStats(d_model, device)
-    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/0.0018)
+    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/MVTEC_SCALING)
 
     for i, sample_point_cloud in enumerate(iter(dataset)):
         with torch.no_grad():

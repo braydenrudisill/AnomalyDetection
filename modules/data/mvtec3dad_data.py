@@ -7,6 +7,7 @@ import cv2
 MVTEC_SYNTHETIC = Path('../pivotdata/synthetic_bagel')
 MVTEC_PATH = Path('../pivotdata/bagel')
 MVTEC_DATASETS = ['bagel', ...]
+MVTEC_SCALING = 1 / 0.0018
 
 
 def main():

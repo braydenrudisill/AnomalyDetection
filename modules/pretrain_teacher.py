@@ -2,28 +2,25 @@ import torch
 from torch.utils.data import DataLoader
 
 from modules.models import TeacherNetwork, KNNGraph, DecoderNetwork
-from modules.data import PointCloudDataset, M10_SYNTHETIC_16K, M10_SYNTHETIC
+from modules.data import PointCloudDataset, M10_SYNTHETIC_16K, M10_SYNTHETIC, M10_SCALING_16, M10_SCALING_16
 from modules.trainer import Trainer
 from modules.loss import ChamferDistance
 
 
 NUM_FEATURE_SAMPLES = 512
 
-s16 = 0.015
-s64 = 0.018
-
 
 def main():
     d_model = 64
-    k = 32
+    k = 8
     num_res_blocks = 4
-    num_decoded_points = 1024
+    num_decoded_points = 256
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    train_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K/'train', scaling_factor=1/s16)
+    train_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K/'train', scaling_factor=M10_SCALING_16)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-    test_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K/'test', scaling_factor=1/s16)
+    test_dataset = PointCloudDataset(root_dir=M10_SYNTHETIC_16K/'test', scaling_factor=M10_SCALING_16)
     test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=0)
 
     trainer = TeacherPretrainer(d_model, k, num_res_blocks, device, num_decoded_points, train_dataloader, test_dataloader)

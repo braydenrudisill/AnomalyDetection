@@ -7,6 +7,8 @@ MODEL10_PATH = Path('../pivotdata/ModelNet10')
 M10_SYNTHETIC = MODEL10_PATH / '../64k_synthetic'
 M10_SYNTHETIC_16K = MODEL10_PATH / '../synthetic_data'
 M10_SYNTHETIC_32K = MODEL10_PATH / '../32k_synthetic'
+M10_SCALING_16 = 1 / 0.0178
+M10_SCALING_64 = 1 / 0.005
 M10_DATASETS = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
 
 

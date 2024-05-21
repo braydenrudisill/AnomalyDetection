@@ -1,6 +1,6 @@
 import torch
 
-from modules.data import MVTEC_SYNTHETIC, PointCloudDataset
+from modules.data import MVTEC_SYNTHETIC, PointCloudDataset, MVTEC_SCALING
 from modules.models import TeacherNetwork
 
 
@@ -18,9 +18,9 @@ def main():
         means, std_devs = torch.tensor([list(map(float, line.split(' '))) for line in f]).T.to(device)
 
     teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'))
-    student.load_state_dict(torch.load('models/student/2024-05-20T08:46:31.390493/student.pt'))
+    student.load_state_dict(torch.load('models/student/2024-05-20T18:40:01.218500/student.pt'))
 
-    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'test', scaling_factor=1/0.0018)
+    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'test' / 'hole', scaling_factor=1/MVTEC_SCALING)
     sample_point_cloud = dataset[0].to(device)
 
     with torch.no_grad():
