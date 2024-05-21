@@ -1,28 +1,30 @@
 import torch
 
 from tqdm import tqdm
-from collections import deque
 
 from modules.data import M10_SYNTHETIC_16K, MVTEC_SYNTHETIC, PointCloudDataset
 from modules.models import TeacherNetwork, DecoderNetwork, KNNGraph
 
 
-class RunningStats:
-    """Computes a rolling mean and stddev with a window length of n to limit memory use."""
-    def __init__(self, n):
-        self.n = n
-        self.data = deque([0.0] * n, maxlen=n)
-        self.mean = self.variance = self.sdev = 0.0
+class RunningStats(torch.nn.Module):
+    def __init__(self, d_model, device):
+        super().__init__()
+        self.n = 0
+        self.sum = torch.zeros(d_model).to(device)
+        self.sum_squared = torch.zeros(d_model).to(device)
 
     def add(self, x):
-        n = self.n
-        oldmean = self.mean
-        goingaway = self.data[0]
-        self.mean = newmean = oldmean + (x - goingaway) / n
-        self.data.append(x)
-        self.variance += (x - goingaway) * (
-            (x - newmean) + (goingaway - oldmean)) / (n - 1)
-        self.sdev = torch.sqrt(self.variance)
+        self.n += len(x)
+        self.sum += torch.sum(x, dim=0)
+        self.sum_squared += torch.sum(x.pow(2), dim=0)
+
+    @property
+    def standard_deviation(self):
+        return torch.sqrt(((self.n * self.sum_squared) - (self.sum.pow(2))) / (self.n * (self.n - 1)))
+
+    @property
+    def mean(self):
+        return self.sum / self.n
 
 
 def main():
@@ -37,21 +39,22 @@ def main():
 
     teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'))
 
-    r = RunningStats(10)
+    stats = RunningStats(d_model, device)
     dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/0.0018)
-    for sample_point_cloud in dataset:
+
+    for i, sample_point_cloud in enumerate(iter(dataset)):
         with torch.no_grad():
             output = teacher(sample_point_cloud.to(device))
 
-        output_avg = torch.mean(output, 0)
-        r.add(output_avg)
+        stats.add(output)
+
         if i % 100 == 0.0:
-            print(i, "mean", r.mean)
-            print(i, "sdev", r.sdev)
+            print(i, "mean", stats.mean)
+            print(i, "sdev", stats.standard_deviation)
 
     print('Writing to file.')
     with open('models/teachers/2024-05-19T07:40:20.796113/teacher_stats_225.txt', 'w+') as f:
-        f.writelines(f'{mean} {std_dev}\n' for mean, std_dev in zip(r.mean, r.sdev))
+        f.writelines(f'{mean} {std_dev}\n' for mean, std_dev in zip(stats.mean, stats.standard_deviation))
 
     print('Done writing.')
 
