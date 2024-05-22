@@ -13,18 +13,24 @@ NUM_TRAIN_SCENES = 500
 NUM_TEST_SCENES = 25
 
 # Original paper uses 64_000
-NUM_POINTS_PER_CLOUD = 32_000
+NUM_POINTS_PER_CLOUD = 16_000
 
 
 def create_mvtec_dataset():
-    files = MVTEC_PATH / 'train' / 'good' / 'xyz'
-    print(files)
-    for i, file_path in tqdm(enumerate(files.glob('*.tiff')), desc="Generating point clouds"):
-        cloud = load_tiff(file_path).to('cuda:0')
-        downsampled_idx = sample_farthest_points(torch.tensor(cloud).unsqueeze(0), num_samples=NUM_POINTS_PER_CLOUD)
-        downsampled = cloud[downsampled_idx]
-        new_path = MVTEC_SYNTHETIC / f'test/hole/{i}.txt'
-        save_to_file(downsampled[0], new_path)
+    gt = MVTEC_PATH / 'test' / 'crack' / 'gt'
+    xyz = MVTEC_PATH / 'test' / 'crack' / 'xyz'
+    for i, (gt_path, xyz_path) in tqdm(enumerate(zip(sorted(gt.glob('*.png')), sorted(xyz.glob('*.tiff')))), desc="Generating point clouds"):
+        is_defect_cloud = load_tiff(gt_path).to('cuda:0')
+        points = load_tiff(xyz_path).to('cuda:0')
+
+        downsampled_idx = sample_farthest_points(points.unsqueeze(0), num_samples=NUM_POINTS_PER_CLOUD)[0]
+        print(xyz_path, gt_path)
+        print(downsampled_idx.shape, points.shape, is_defect_cloud.shape)
+        new_points = points[downsampled_idx]
+        new_labels = is_defect_cloud.unsqueeze(-1)[downsampled_idx]
+        new_path = MVTEC_SYNTHETIC / f'test/{i}_gt.txt'
+        print(new_path)
+        save_to_file(torch.cat([new_points, new_labels], -1), new_path)
 
 
 def create_model_10_dataset():
@@ -125,5 +131,5 @@ def sample_farthest_points(points: torch.Tensor, num_samples: int, random_start_
 
 
 if __name__ == '__main__':
-    create_model_10_dataset()
+    # create_model_10_dataset()
     create_mvtec_dataset()

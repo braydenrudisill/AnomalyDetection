@@ -12,8 +12,8 @@ def main():
     k = 8
     num_blocks = 4
     device = torch.device('cuda:0')
-    teacher_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'
-    teacher_stats_path = 'models/teachers/2024-05-19T07:40:20.796113/teacher_stats_225.txt'
+    teacher_path = 'models/teacher/2024-05-20T22:23:41.177392/teacher_225.pt'
+    teacher_stats_path = 'models/teacher/2024-05-20T22:23:41.177392/teacher_stats_225.txt'
 
     train_dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC/'train', scaling_factor=MVTEC_SCALING)
     train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)

@@ -27,4 +27,4 @@ class PointCloudDataset(torch.utils.data.Dataset):
         with open(scene_path, 'r') as f:
             scene = torch.tensor([list(map(float, line.split(' '))) for line in f]) * self.scaling_factor
 
-        return scene
+        return scene, scene_path

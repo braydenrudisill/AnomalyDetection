@@ -38,10 +38,10 @@ def main():
     teacher = TeacherNetwork(d_model, k, num_blocks, device=device).to(device)
     teacher.eval()
 
-    teacher.load_state_dict(torch.load('models/teachers/2024-05-19T07:40:20.796113/teacher_225.pt'))
+    teacher.load_state_dict(torch.load('models/teacher/2024-05-20T22:23:41.177392/teacher_225.pt'))
 
     stats = RunningStats(d_model, device)
-    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=1/MVTEC_SCALING)
+    dataset = PointCloudDataset(root_dir=MVTEC_SYNTHETIC / 'train', scaling_factor=MVTEC_SCALING)
 
     for i, sample_point_cloud in enumerate(iter(dataset)):
         with torch.no_grad():
@@ -50,11 +50,12 @@ def main():
         stats.add(output)
 
         if i % 100 == 0.0:
+            print(output)
             print(i, "mean", stats.mean)
             print(i, "sdev", stats.standard_deviation)
 
     print('Writing to file.')
-    with open('models/teachers/2024-05-19T07:40:20.796113/teacher_stats_225.txt', 'w+') as f:
+    with open('models/teacher/2024-05-20T22:23:41.177392/teacher_stats_225.txt', 'w+') as f:
         f.writelines(f'{mean} {std_dev}\n' for mean, std_dev in zip(stats.mean, stats.standard_deviation))
 
     print('Done writing.')

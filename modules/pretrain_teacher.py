@@ -7,7 +7,7 @@ from modules.trainer import Trainer
 from modules.loss import ChamferDistance
 
 
-NUM_FEATURE_SAMPLES = 512
+NUM_FEATURE_SAMPLES = 16
 
 
 def main():
